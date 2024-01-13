@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "jest",
+    "test": "jest -i --forceExit",
     "start": "node ./index",
     "dev": "nodemon ./index"
   },

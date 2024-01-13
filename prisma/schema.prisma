@@ -9,3 +9,17 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  user
+  admin
+}
+
+model Users{
+  id          String @id @default(uuid())
+  name        String @db.VarChar(100)
+  email       String @db.VarChar(100) @unique
+  password    String @db.VarChar(100)
+  token       String? @db.VarChar(100)
+  role      Role
+}
