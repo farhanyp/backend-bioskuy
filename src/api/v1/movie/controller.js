@@ -74,7 +74,7 @@ const remove = async (req, res, next) => {
     const result = await removeMovie(req)
 
     res.status(StatusCodes.OK).json({ 
-      "data": result
+      "msg": "Movie has been delete"
     });
 
   } catch (error) {

@@ -26,7 +26,7 @@ const getIndexMovies = async (req) => {
 
   const movies = await prismaClient.movies.findMany();
 
-  if(!movies) throw new ResponseError(StatusCodes.NOT_FOUND, "Movies not found")
+  if(movies.length === 0) throw new ResponseError(StatusCodes.NOT_FOUND, "Movies not found")
 
   return movies
 }
