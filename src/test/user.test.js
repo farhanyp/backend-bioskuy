@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import app from "../../index.js";
+import { app } from "../application/app.js";
 import { StatusCodes } from "http-status-codes";
 import { createTestUser, removeTestUser } from "./utils.js";
 import { logger } from "../application/logging.js";

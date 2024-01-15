@@ -1,8 +1,8 @@
-import { createJWT, isTokenValid} from './jwt';
-import { createTokenUser } from './createTokenUser';
+import { createJWT, isTokenValid} from './jwt.js';
+import { createTokenUser } from './createTokenUser.js';
 
 
-module.exports = {
+export{
     createJWT,
     isTokenValid,
     createTokenUser,

@@ -15,11 +15,27 @@ enum Role {
   admin
 }
 
+enum StatusMovie {
+  notShowing
+  showing
+  alreadyShowing
+}
+
 model Users{
   id          String @id @default(uuid())
   name        String @db.VarChar(100)
   email       String @db.VarChar(100) @unique
   password    String @db.VarChar(100)
   token       String? @db.VarChar(100)
-  role      Role
+  role        Role
+}
+
+model Movies{
+  id                  String @id @default(uuid())
+  name                String @db.VarChar(100)
+  description         String? @db.VarChar(100)
+  price               Int
+  status              StatusMovie
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

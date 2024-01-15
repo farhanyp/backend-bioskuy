@@ -19,7 +19,7 @@ const registerUser = async (req) => {
 
     if (checkUser) throw new ResponseError(StatusCodes.BAD_REQUEST, "User already created");
 
-    if (password) password = bcryptjs.hashSync("test", 12);
+    if (password) password = bcryptjs.hashSync(password, 12);
 
     return prismaClient.users.create({
         data: {
