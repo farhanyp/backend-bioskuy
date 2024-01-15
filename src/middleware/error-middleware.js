@@ -1,3 +1,4 @@
+import { logger } from "../application/logging.js";
 import { ResponseError } from "../error/response-error.js";
 
 const errorMiddleware = async (err, req, res, next) => {
@@ -14,12 +15,9 @@ const errorMiddleware = async (err, req, res, next) => {
       })
       .end();
   } else {
-    res
-      .status(500)
-      .json({
+    res.status(500).send({
         errors: err.message,
-      })
-      .end();
+      }).end();
   }
 };
 
