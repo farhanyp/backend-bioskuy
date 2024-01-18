@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { app } from "../application/app.js";
 import { StatusCodes } from "http-status-codes";
-import { createTestAdmin, createTestUser, loginUserorAdmin, removeMovies, removeTestAdmin, removeTestUser, createManyMovie, createOneMovie } from "./utils.js";
+import { createTestAdmin, createTestUser, loginUserorAdmin, removeMovies, removeTestAdmin, removeTestUser, createManyMovie, createOneMovie, createManyStudio } from "./utils.js";
 import { logger } from "../application/logging.js";
 import { prismaClient } from "../application/database.js";
 
@@ -29,6 +29,7 @@ describe("POST /api/v1/movie", () => {
       description: "test1",
       price: 5000,
       status: "notShowing",
+      genre: "action",
     });
 
     expect(response.statusCode).toBe(StatusCodes.CREATED);
@@ -192,7 +193,6 @@ describe("PATCH /api/v1/movie/current", () => {
   });
 
 });
-
 
 describe("DELETE /api/v1/movie/current", () => {
   beforeEach(async () => {

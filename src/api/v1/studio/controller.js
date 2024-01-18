@@ -6,15 +6,15 @@ import { StatusCodes } from "http-status-codes";
 import { ResponseError } from "../../../error/response-error.js";
 import { validate } from "../../../validation/validation.js";
 import { registerValidation } from "../../../validation/user-validation.js";
-import { UpdateMovie, createFilm, getFindMovie, getIndexMovies, removeMovie } from "../../../service/prisma/movie.js"
+import { createStudio, getFindStudio, getIndexStudio, removeStudio } from "../../../service/prisma/studio.js"
 
 const create = async (req, res, next) => {
   try {
     
-    const result = await createFilm(req)
+    const result = await createStudio(req)
 
     res.status(StatusCodes.CREATED).json({ 
-      "msg": "Film successfully registered"
+      msg: 'Created Studio Successfully'
     });
 
   } catch (error) {
@@ -26,7 +26,7 @@ const create = async (req, res, next) => {
 const index = async (req, res, next) => {
   try {
     
-    const result = await getIndexMovies(req)
+    const result = await getIndexStudio(req)
 
     res.status(StatusCodes.OK).json({ 
       ...result
@@ -41,7 +41,7 @@ const index = async (req, res, next) => {
 const find = async (req, res, next) => {
   try {
     
-    const result = await getFindMovie(req)
+    const result = await getFindStudio(req)
 
     res.status(StatusCodes.OK).json({ 
       ...result
@@ -53,28 +53,13 @@ const find = async (req, res, next) => {
   }
 };
 
-const update = async (req, res, next) => {
-  try {
-    
-    const result = await UpdateMovie(req)
-
-    res.status(StatusCodes.OK).json({ 
-      "msg": "Movie successfully changed"
-    });
-
-  } catch (error) {
-    next(error);
-
-  }
-};
-
 const remove = async (req, res, next) => {
   try {
     
-    const result = await removeMovie(req)
+    const result = await removeStudio(req)
 
     res.status(StatusCodes.OK).json({ 
-      "msg": "Movie has been delete"
+      msg: 'Studi has been delete'
     });
 
   } catch (error) {
@@ -87,6 +72,5 @@ export default {
   create,
   index,
   find,
-  update,
   remove
 };

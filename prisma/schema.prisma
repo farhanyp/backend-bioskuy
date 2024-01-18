@@ -21,13 +21,20 @@ enum StatusMovie {
   alreadyShowing
 }
 
+enum StatusPayments {
+  unpaid
+  paid
+}
+
 model Users{
-  id          String @id @default(uuid())
-  name        String @db.VarChar(100)
-  email       String @db.VarChar(100) @unique
-  password    String @db.VarChar(100)
-  token       String? @db.VarChar(100)
-  role        Role
+  id              String @id @default(uuid())
+  name            String @db.VarChar(100)
+  email           String @db.VarChar(100) @unique
+  password        String @db.VarChar(100)
+  token           String? @db.VarChar(100)
+  role            Role
+
+  booking         Bookings[]
 }
 
 model Movies{
@@ -36,6 +43,83 @@ model Movies{
   description         String? @db.VarChar(100)
   price               Int
   status              StatusMovie
+  genre               String @db.VarChar(255)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  showtime            Showtimes[]
 }
+
+model Studios{
+  id                  String @id @default(uuid())
+  name                String @db.VarChar(100)
+  capcity             Int
+
+  seat                Seats[]
+  showtime            Showtimes[]
+}
+
+model Seats{
+  id                  String @id @default(uuid())
+  studio_id           String
+  seat_name           String @db.VarChar(10)
+  isAvailable         Boolean
+
+  studio              Studios @relation(fields: [studio_id], references: [id])
+  seatBooking         SeatBookings[]
+}
+
+model SeatBookings{
+  id                  String @id @default(uuid())
+  seat_id             String @db.VarChar(100)
+  booking_id          String @db.VarChar(100)
+
+  seat                Seats @relation(fields: [seat_id], references: [id])
+  booking             Bookings @relation(fields: [booking_id], references: [id])
+}
+
+model Bookings{
+  id                  String @id @default(uuid())
+  seat_name           String @db.VarChar(10)
+  isAvailable         Boolean
+  user_id             String
+  user                Users @relation(fields: [user_id], references: [id])
+
+  seatBooking         SeatBookings[]
+  payment             Payments[]
+}
+
+model Showtimes{
+  id                  String @id @default(uuid())
+  movie_id            String @db.VarChar(100)
+  studio_id           String @db.VarChar(10)
+  show_start          DateTime
+  show_end            DateTime
+
+  movie               Movies @relation(fields: [movie_id], references: [id])
+  studio              Studios @relation(fields: [studio_id], references: [id])
+}
+
+model Payments{
+  id                  String @id @default(uuid())
+  booking_id          String @db.VarChar(100)
+  amount              Int
+  status              StatusPayments
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  paymentHistory      PaymentsHistory?
+  booking             Bookings @relation(fields: [booking_id], references: [id])
+}
+
+model PaymentsHistory{
+  id                  String @id @default(uuid())
+  payments_id         String @db.VarChar(100) @unique
+  amount              Int
+  status              StatusPayments
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  payment             Payments @relation(fields: [payments_id], references: [id])
+}
+
