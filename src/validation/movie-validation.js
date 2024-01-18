@@ -5,6 +5,7 @@ const createFilmValidation = Joi.object({
   description:  Joi.string().max(100),
   price:        Joi.number().required(),
   status:       Joi.string().valid("notShowing", "showing", "alreadyShowing").required().default("notShowing"),
+  genre:        Joi.string().max(100).required(),
 });
 
 

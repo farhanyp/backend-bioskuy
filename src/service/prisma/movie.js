@@ -4,13 +4,10 @@ import { prismaClient } from "../../application/database.js";
 import { ResponseError } from "../../error/response-error.js";
 import { createFilmValidation } from "../../validation/movie-validation.js";
 import { validate } from "../../validation/validation.js";
-import { createTokenUser } from '../../utils/createTokenUser.js';
-import { createJWT } from '../../utils/jwt.js';
-import { logger } from '../../application/logging.js';
 
 const createFilm = async (req) => {
 
-    let {name, description, price, status} = validate(createFilmValidation, req.body);
+    let {name, description, price, status, genre} = validate(createFilmValidation, req.body);
 
     return prismaClient.movies.create({
         data: {
@@ -18,6 +15,7 @@ const createFilm = async (req) => {
           description,
           price,
           status,
+          genre
         }
     });
 }
