@@ -31,8 +31,6 @@ describe("POST /api/v1/studio", () => {
       maxRowSeat: 10
     });
 
-    logger.info(response.body)
-
     expect(response.statusCode).toBe(StatusCodes.CREATED);
   });
 
@@ -168,7 +166,6 @@ describe("DELETE /api/v1/studio/current", () => {
       }
     })
 
-    logger.info(response.body)
     expect(result._count.id).toBe(9);
     expect(response.statusCode).toBe(StatusCodes.OK);
   });

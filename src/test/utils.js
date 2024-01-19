@@ -4,6 +4,7 @@ import { createTokenUser } from '../utils/createTokenUser.js'
 import { createJWT } from '../utils/jwt.js'
 import { loginValidation } from '../validation/user-validation.js'
 import { validate } from '../validation/validation.js'
+import { logger } from '../application/logging.js'
 
 export const createTestUser = async () => {
     await prismaClient.users.create({
@@ -60,6 +61,20 @@ export const createManyMovie = async () => {
     });
 };
 
+export const createManyShowtimes = async () => {
+
+    const movie = await prismaClient.movies.findFirst();
+    const studio = await prismaClient.studios.findFirst();
+
+    return prismaClient.showtimes.createMany({
+        data: [
+            { movie_id: movie.id, studio_id: studio.id,  show_start: new Date('2024-01-18T01:00:00Z'), show_end: new Date('2024-01-18T02:00:00Z') },
+            { movie_id: movie.id, studio_id: studio.id,  show_start: new Date('2024-01-18T03:00:00Z'), show_end: new Date('2024-01-18T04:00:00Z') },
+            { movie_id: movie.id, studio_id: studio.id,  show_start: new Date('2024-01-18T05:00:00Z'), show_end: new Date('2024-01-18T06:00:00Z') }
+        ]
+    });
+};
+
 export const createManyStudio = async () => {
     return prismaClient.studios.createMany({
         data: [
@@ -103,16 +118,33 @@ export const createStudio = async () => {
     })
 }
 
+export const createShowTime = async () => {
+    const movie = await prismaClient.movies.findFirst();
+    const studio = await prismaClient.studios.findFirst();
+    await prismaClient.showtimes.create({
+        data:{ 
+            movie_id: movie.id, 
+            studio_id: studio.id,  
+            show_start: new Date('2024-01-18T01:00:00Z'), 
+            show_end: new Date('2024-01-18T02:00:00Z') 
+        },
+    })
+}
+
 export const createOneMovie = async () => {
     return prismaClient.movies.create({
         data:{ 
-            name: "tes1", description: "test1", price: 5000, status: "notShowing" 
+            name: "tes1", description: "test1", price: 5000, status: "notShowing" , genre: "action"
         },
     });
 };
 
 export const removeMovies = async () => {
     await prismaClient.movies.deleteMany()
+}
+
+export const removeShowtimes = async () => {
+    await prismaClient.showtimes.deleteMany()
 }
 
 export const removeStudio = async () => {

@@ -92,7 +92,7 @@ model Bookings{
 model Showtimes{
   id                  String @id @default(uuid())
   movie_id            String @db.VarChar(100)
-  studio_id           String @db.VarChar(10)
+  studio_id           String @db.VarChar(100)
   show_start          DateTime
   show_end            DateTime
 
