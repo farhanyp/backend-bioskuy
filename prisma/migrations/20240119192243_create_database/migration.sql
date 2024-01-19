@@ -67,7 +67,7 @@ CREATE TABLE `Bookings` (
 CREATE TABLE `Showtimes` (
     `id` VARCHAR(191) NOT NULL,
     `movie_id` VARCHAR(100) NOT NULL,
-    `studio_id` VARCHAR(10) NOT NULL,
+    `studio_id` VARCHAR(100) NOT NULL,
     `show_start` DATETIME(3) NOT NULL,
     `show_end` DATETIME(3) NOT NULL,
 

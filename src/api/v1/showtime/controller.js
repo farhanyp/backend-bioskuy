@@ -6,15 +6,15 @@ import { StatusCodes } from "http-status-codes";
 import { ResponseError } from "../../../error/response-error.js";
 import { validate } from "../../../validation/validation.js";
 import { registerValidation } from "../../../validation/user-validation.js";
-import { createStudio, getFindStudio, getIndexStudio, removeStudio } from "../../../service/prisma/studio.js"
+import { UpdateShowtime, createShowTime, getFindShowtime, getIndexShowtime, removeShowtime } from '../../../service/prisma/showtime.js';
 
 const create = async (req, res, next) => {
   try {
     
-    const result = await createStudio(req)
+    const result = await createShowTime(req)
 
     res.status(StatusCodes.CREATED).json({ 
-      msg: 'Created Studio Successfully'
+      "data": "Showtime successfully registered"
     });
 
   } catch (error) {
@@ -26,7 +26,7 @@ const create = async (req, res, next) => {
 const index = async (req, res, next) => {
   try {
     
-    const result = await getIndexStudio(req)
+    const result = await getIndexShowtime(req)
 
     res.status(StatusCodes.OK).json({ 
       ...result
@@ -41,7 +41,7 @@ const index = async (req, res, next) => {
 const find = async (req, res, next) => {
   try {
     
-    const result = await getFindStudio(req)
+    const result = await getFindShowtime(req)
 
     res.status(StatusCodes.OK).json({ 
       ...result
@@ -53,13 +53,28 @@ const find = async (req, res, next) => {
   }
 };
 
+const update = async (req, res, next) => {
+  try {
+    
+    const result = await UpdateShowtime(req)
+
+    res.status(StatusCodes.OK).json({ 
+      "msg": "Showtime successfully changed"
+    });
+
+  } catch (error) {
+    next(error);
+
+  }
+};
+
 const remove = async (req, res, next) => {
   try {
     
-    const result = await removeStudio(req)
+    const result = await removeShowtime(req)
 
     res.status(StatusCodes.OK).json({ 
-      msg: 'Studio has been delete'
+      "msg": "Showtime has been delete"
     });
 
   } catch (error) {
@@ -72,5 +87,6 @@ export default {
   create,
   index,
   find,
+  update,
   remove
 };
