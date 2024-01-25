@@ -15,6 +15,13 @@ enum Role {
   admin
 }
 
+enum BookingStatus {
+  active
+  completed
+  cancelled
+  pending
+}
+
 enum StatusMovie {
   notShowing
   showing
@@ -34,7 +41,7 @@ model Users{
   token           String? @db.VarChar(100)
   role            Role
 
-  booking         Bookings[]
+  seatbookings    SeatBookings[]
 }
 
 model Movies{
@@ -71,22 +78,15 @@ model Seats{
 
 model SeatBookings{
   id                  String @id @default(uuid())
+  user_id             String @db.VarChar(100)
   seat_id             String @db.VarChar(100)
-  booking_id          String @db.VarChar(100)
+  showtime_id         String @db.VarChar(100)
+  status              BookingStatus
+  payment             Payments?
 
   seat                Seats @relation(fields: [seat_id], references: [id])
-  booking             Bookings @relation(fields: [booking_id], references: [id])
-}
-
-model Bookings{
-  id                  String @id @default(uuid())
-  seat_name           String @db.VarChar(10)
-  isAvailable         Boolean
-  user_id             String
+  showtime            Showtimes @relation(fields: [showtime_id], references: [id])
   user                Users @relation(fields: [user_id], references: [id])
-
-  seatBooking         SeatBookings[]
-  payment             Payments[]
 }
 
 model Showtimes{
@@ -95,6 +95,7 @@ model Showtimes{
   studio_id           String @db.VarChar(100)
   show_start          DateTime
   show_end            DateTime
+  seatbooking         SeatBookings[]
 
   movie               Movies @relation(fields: [movie_id], references: [id])
   studio              Studios @relation(fields: [studio_id], references: [id])
@@ -102,14 +103,15 @@ model Showtimes{
 
 model Payments{
   id                  String @id @default(uuid())
-  booking_id          String @db.VarChar(100)
+  seatbooking_id      String @db.VarChar(100) @unique
   amount              Int
   status              StatusPayments
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  transaction_token   String @db.VarChar(100)
 
   paymentHistory      PaymentsHistory?
-  booking             Bookings @relation(fields: [booking_id], references: [id])
+  seatbooking         SeatBookings @relation(fields: [seatbooking_id], references: [id])
 }
 
 model PaymentsHistory{

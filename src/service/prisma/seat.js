@@ -3,7 +3,7 @@ import { io } from "../../application/websocket.js";
 
   export async function GetAllSeats() {
     try {
-      const seats = await prismaClient.seats.findMany();
+      const seats = await prismaClient.seats.findMany({});
       io.emit('get all seats', seats);
     } catch (error) {
       console.error('Error fetching users:', error);
