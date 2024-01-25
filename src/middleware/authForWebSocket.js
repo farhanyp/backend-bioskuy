@@ -23,8 +23,6 @@ const authorizeSocketRoles  = (...roles) => {
             }
         })
 
-        logger.info(DBToken)
-
         next();
     }
 }

@@ -7,13 +7,21 @@ import { validate } from '../validation/validation.js'
 import { logger } from '../application/logging.js'
 
 export const createTestUser = async () => {
-    await prismaClient.users.create({
-        data: {
-            name: "test",
-            email: "test@example.com",
-            password: await bcryptjs.hash("test", 12),
-            role: "user",
-        }
+    await prismaClient.users.createMany({
+        data:[
+            {
+                name: "test",
+                email: "test@example.com",
+                password: await bcryptjs.hash("test", 12),
+                role: "user",
+            },
+            {
+                name: "test2",
+                email: "test2@example.com",
+                password: await bcryptjs.hash("test", 12),
+                role: "user",
+            },
+        ] 
     })
 }
 
@@ -29,11 +37,11 @@ export const createTestAdmin = async () => {
 }
 
 export const removeTestUser = async () => {
-    await prismaClient.users.delete({
-        where: {
-            email: "test@example.com"
-        }
-    })
+    await prismaClient.users.deleteMany()
+}
+
+export const removeSeatBooking = async () => {
+    await prismaClient.seatBookings.deleteMany()
 }
 
 export const removeTestAdmin = async () => {
@@ -139,6 +147,88 @@ export const createOneMovie = async () => {
     });
 };
 
+export const createSeats = async () => {
+
+    const studio = await prismaClient.studios.findFirst();
+    
+    return prismaClient.seats.createMany({
+        data:[
+            { studio_id: studio.id, seat_name: "A-1", isAvailable: true},
+            { studio_id: studio.id, seat_name: "A-2", isAvailable: true},
+            { studio_id: studio.id, seat_name: "A-3", isAvailable: true},
+            { studio_id: studio.id, seat_name: "B-1", isAvailable: true},
+            { studio_id: studio.id, seat_name: "B-2", isAvailable: true},
+            { studio_id: studio.id, seat_name: "B-3", isAvailable: true}
+        ]
+    });
+};
+
+
+export const createSeatBooking = async () => {
+
+    const seat1 = await prismaClient.seats.findFirst({
+        where:{
+            seat_name: "A-1"
+        }
+    });
+
+    const seat2 = await prismaClient.seats.findFirst({
+        where:{
+            seat_name: "A-2"
+        }
+    });
+    const showtime = await prismaClient.showtimes.findFirst();
+    const user = await prismaClient.users.findFirst({
+        where: {
+            email: "test@example.com"
+        }
+    });
+    
+    return prismaClient.seatBookings.createMany({
+        data:[
+            { showtime_id: showtime.id, seat_id: seat1.id, user_id: user.id, status: 'pending'},
+            { showtime_id: showtime.id, seat_id: seat2.id, user_id: user.id, status: 'pending'}
+        ]
+    });
+};
+
+export const createPayments = async () => {
+
+    const booking = await prismaClient.seatBookings.findFirst();
+    const user = await prismaClient.users.findFirst({
+        where: {
+            email: "test@example.com"
+        }
+    });
+    
+    return prismaClient.payments.createMany({
+        data:[
+            { seatbooking_id: booking.id, amount: 10000, status: "unpaid", transaction_token: '123456'},
+        ]
+    });
+};
+
+export const createOneSeats = async () => {
+
+    const studio = await prismaClient.studios.findFirst();
+    
+    return prismaClient.seats.create({
+        data:{ studio_id: studio.id, seat_name: "A-1", isAvailable: true}
+    });
+};
+
+export const removePayment = async () => {
+    return prismaClient.payments.deleteMany();
+};
+
+export const removeHistoryPayment = async () => {
+    return prismaClient.paymentsHistory.deleteMany();
+};
+
+export const removeSeats = async () => {
+    await prismaClient.seats.deleteMany()
+};
+
 export const removeMovies = async () => {
     await prismaClient.movies.deleteMany()
 }
@@ -158,6 +248,7 @@ export const removeSeat = async () => {
 export const removeGenre = async () => {
     await prismaClient.genres.deleteMany()
 }
+
 
 export const loginUserorAdmin = async (req) => {
 
@@ -192,4 +283,8 @@ export const loginUserorAdmin = async (req) => {
 
     return token;
 
+}
+
+export const delay = (t, value) => {
+    return new Promise(resolve => setTimeout(() => resolve(value), t));
 }
