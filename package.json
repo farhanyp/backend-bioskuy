@@ -5,10 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "prisma generate && <actual-build-command>",
     "test": "jest -i --forceExit",
     "start": "node ./index",
-    "dev": "nodemon ./index",
-    "build": "prisma generate"
+    "dev": "nodemon ./index"
   },
   "jest": {
     "transform": {
