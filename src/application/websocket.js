@@ -11,5 +11,5 @@ export const io = new Server(server, {
     },
 });
 
-io.use(authenticateSocket);
-io.use(authorizeSocketRoles('user', 'admin'));
+// io.use(authenticateSocket);
+// io.use(authorizeSocketRoles('user', 'admin'));
