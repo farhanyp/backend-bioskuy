@@ -2,10 +2,10 @@ import { app } from './src/application/app.js'
 import { prismaClient } from './src/application/database.js';
 import { logger } from './src/application/logging.js';
 import { io, server } from "./src/application/websocket.js";
-import { completeBookingCronjob, deleteExpiredPaymentsCronjob } from './src/cronJobsScheduler.js';
+// import { completeBookingCronjob } from './src/cronJobsScheduler.js';
 import { GetAllSeats, UpdateSeats } from './src/service/prisma/seat.js';
 
-completeBookingCronjob.start()
+// completeBookingCronjob.start()
 // deleteExpiredPaymentsCronjob.start()
 
 app.get("/", (req, res) => {
