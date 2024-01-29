@@ -139,6 +139,23 @@ export const createShowTime = async () => {
     })
 }
 
+export const createShowTimeCronJob = async () => {
+    const currentTime = new Date()
+    const show_start = currentTime.setMinutes(currentTime.getMinutes()-20)
+    const show_end = currentTime.setMinutes(currentTime.getMinutes()-5)
+
+    const movie = await prismaClient.movies.findFirst();
+    const studio = await prismaClient.studios.findFirst();
+    await prismaClient.showtimes.create({
+        data:{ 
+            movie_id: movie.id, 
+            studio_id: studio.id,  
+            show_start: new Date(show_start), 
+            show_end: new Date(show_end) 
+        },
+    })
+}
+
 export const createOneMovie = async () => {
     return prismaClient.movies.create({
         data:{ 
@@ -160,6 +177,16 @@ export const createSeats = async () => {
             { studio_id: studio.id, seat_name: "B-2", isAvailable: true},
             { studio_id: studio.id, seat_name: "B-3", isAvailable: true}
         ]
+    });
+};
+
+export const createSeatCronJob = async () => {
+
+    const studio = await prismaClient.studios.findFirst();
+    
+    return prismaClient.seats.createMany({
+        data:
+            { studio_id: studio.id, seat_name: "A-1", isAvailable: false}
     });
 };
 
@@ -192,6 +219,27 @@ export const createSeatBooking = async () => {
     });
 };
 
+export const createSeatBookingCronJob = async () => {
+
+    const seat1 = await prismaClient.seats.findFirst({
+        where:{
+            seat_name: "A-1"
+        }
+    });
+    const showtime = await prismaClient.showtimes.findFirst();
+    const user = await prismaClient.users.findFirst({
+        where: {
+            email: "test@example.com"
+        }
+    });
+    
+    return prismaClient.seatBookings.createMany({
+        data:[
+            { showtime_id: showtime.id, seat_id: seat1.id, user_id: user.id, status: 'active'}
+        ]
+    });
+};
+
 export const createPayments = async () => {
 
     const booking = await prismaClient.seatBookings.findFirst();
@@ -204,6 +252,23 @@ export const createPayments = async () => {
     return prismaClient.payments.createMany({
         data:[
             { seatbooking_id: booking.id, amount: 10000, status: "unpaid", transaction_token: '123456'},
+        ]
+    });
+};
+
+export const createPaymentsCronJob = async () => {
+    const now = new Date();
+    let expirationTime =  new Date(now.setMinutes(now.getMinutes() - 30));
+    const booking = await prismaClient.seatBookings.findFirst();
+    const user = await prismaClient.users.findFirst({
+        where: {
+            email: "test@example.com"
+        }
+    });
+    
+    return prismaClient.payments.createMany({
+        data:[
+            { seatbooking_id: booking.id, amount: 10000, status: "unpaid", transaction_token: '123456', createdAt: expirationTime},
         ]
     });
 };

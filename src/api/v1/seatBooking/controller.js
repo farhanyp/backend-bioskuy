@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createSeatBooking } from "../../../service/prisma/seatBooking";
+import { createSeatBooking } from "../../../service/prisma/seatBooking.js";
 
 const create = async (req, res, next) => {
   try {

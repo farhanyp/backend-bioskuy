@@ -1,14 +1,28 @@
 import { StatusCodes } from "http-status-codes";
-import { createPayments, notificationPayments } from "../../../service/prisma/payment";
+import { createPayments, getPayments, notificationPayments } from "../../../service/prisma/payment.js";
 
 const create = async (req, res, next) => {
   try {
     
-    const { payment, transactionToken} = await createPayments(req)
+    const result = await createPayments(req)
 
     res.status(StatusCodes.CREATED).json({ 
-      data: payment,
-      transactionToken: transactionToken
+      data: result
+    });
+
+  } catch (error) {
+    next(error);
+
+  }
+};
+
+const indexPayments = async (req, res, next) => {
+  try {
+    
+    const result = await getPayments(req)
+
+    res.status(StatusCodes.CREATED).json({ 
+      data: result
     });
 
   } catch (error) {
@@ -34,5 +48,6 @@ const notification = async (req, res, next) => {
 
 export default {
   create,
-  notification
+  notification,
+  indexPayments
 };

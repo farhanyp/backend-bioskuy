@@ -38,7 +38,7 @@ model Users{
   name            String @db.VarChar(100)
   email           String @db.VarChar(100) @unique
   password        String @db.VarChar(100)
-  token           String? @db.VarChar(100)
+  token           String? @db.VarChar(300)
   role            Role
 
   seatbookings    SeatBookings[]
