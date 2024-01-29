@@ -1,8 +1,12 @@
 import { app } from './src/application/app.js'
+import { prismaClient } from './src/application/database.js';
 import { logger } from './src/application/logging.js';
 import { io, server } from "./src/application/websocket.js";
-import { deleteExpiredPayments } from './src/service/prisma/payment.js';
+import { completeBookingCronjob, deleteExpiredPaymentsCronjob } from './src/cronJobsScheduler.js';
 import { GetAllSeats, UpdateSeats } from './src/service/prisma/seat.js';
+
+completeBookingCronjob.start()
+// deleteExpiredPaymentsCronjob.start()
 
 app.get("/", (req, res) => {
   res.send("<h1>WebSocket dengan Express dan Socket.io</h1>");
@@ -11,14 +15,15 @@ app.get("/", (req, res) => {
 io.on("connection", async (socket) => {
   console.log("Seorang pengguna terhubung");
 
-  GetAllSeats();
-  UpdateSeats(socket)
-  deleteExpiredPayments()
-  completeSeatWhenShowEnded()
+  socket.on('get all seats', async (studioId) => {
 
-  setInterval(GetAllSeats, 5000);
-  setInterval(deleteExpiredPayments, 1000);
-  setInterval(completeSeatWhenShowEnded, 10000);
+    GetAllSeats(studioId).then(seats => {
+      socket.emit('get all seats', seats);
+    }).catch(error => {
+      socket.emit('error', error.message);
+    });
+
+  });
 
 })
 

@@ -10,34 +10,76 @@ const createShowTime = async (req) => {
   const {movie_id, studio_id, show_start, show_end} = validate(createShowTimeValidation, req.body) 
 
   const isTimeExisted = await prismaClient.showtimes.findFirst({
-    where:{
-      OR: [
+    where: {
+      AND: [
         {
-          show_start:{
-            gte: show_start,
-            lte: show_end,
-          }
+          studio_id: studio_id,
         },
         {
-          show_end:{
-            gte: show_start,
-            lte: show_end,
-          }
+          OR: [
+            {
+              show_start: {
+                gte: show_start,
+                lte: show_end
+              }
+            },
+            {
+              show_end: {
+                gte: show_start,
+                lte: show_end
+              }
+            },
+            {
+              AND: [
+                {
+                  show_start: {
+                    lte: show_start
+                  }
+                },
+                {
+                  show_end: {
+                    gte: show_start
+                  }
+                }
+              ]
+            },
+            {
+              AND: [
+                {
+                  show_start: {
+                    lte: show_end
+                  }
+                },
+                {
+                  show_end: {
+                    gte: show_end
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ],
-      AND:{
-        studio_id: studio_id
-      }
+      ]
+    }
+  });
+  
+
+  if(isTimeExisted) throw new ResponseError(StatusCodes.BAD_REQUEST, "There is conflicting airtime")
+
+  const movieShowing = await prismaClient.movies.findFirst({
+    where:{
+      id: movie_id,
+      status: 'notShowing'
     }
   })
 
-  if(isTimeExisted) throw new ResponseError(StatusCodes.BAD_REQUEST, "There is conflicting airtime")
+  if(movieShowing) throw new ResponseError(StatusCodes.BAD_REQUEST, "The Movie isn't ready to be shown yet")
   
   return prismaClient.showtimes.create({
       data: {
         movie_id,
         studio_id,
-        show_start,
+        show_start, 
         show_end
       }
   });

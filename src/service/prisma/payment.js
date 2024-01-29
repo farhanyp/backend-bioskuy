@@ -1,26 +1,21 @@
-import bcryptjs from 'bcryptjs'
 import midtransClient from 'midtrans-client';
 import { StatusCodes } from "http-status-codes";
 import { prismaClient } from "../../application/database.js";
 import { ResponseError } from "../../error/response-error.js";
-import { validate } from "../../validation/validation.js";
 import { logger } from '../../application/logging.js';
-import { createPaymentValidation } from '../../validation/payment-validation.js';
 import { clientKey, serverKey } from '../../config.js';
-import cron from 'node-cron';
 import crypto from "crypto-js";
 
 const createPayments = async (req) => {
+  const user = req.user;
 
-  const user = req.user 
-
-  const seatBooking = await prismaClient.seatBookings.findFirst({
-    where:{
+  const seatBooking = await prismaClient.seatBookings.findMany({
+    where: {
       user_id: user.user_id,
       status: "pending"
     }
-  })
-  if(!seatBooking) throw new ResponseError(StatusCodes.NOT_FOUND, "Seat Booking not found")
+  });
+  if (seatBooking.length === 0) throw new ResponseError(StatusCodes.NOT_FOUND, "Seat Booking not found")
 
   const totalBooking = await prismaClient.seatBookings.aggregate({
     where:{
@@ -48,34 +43,72 @@ const createPayments = async (req) => {
 
   let finalPrice = totalBooking._count.seat_id * moviePrice.showtime.movie.price
 
-    
   let snap = new midtransClient.Snap({
-    isProduction : false,
-    serverKey : serverKey,
-    clientKey : clientKey
+    isProduction: false,
+    serverKey: serverKey,
+    clientKey: clientKey
   });
-  
-  let parameter = {
-    "transaction_details": {
-      "order_id": seatBooking.id,
-      "gross_amount": finalPrice
+
+  let paymentResults = [];
+
+  for (const element of seatBooking) {
+    console.log(`Processing seat booking: ${element.id}`);
+    try {
+      const existingPayment = await prismaClient.payments.findUnique({
+        where: {
+          seatbooking_id: element.id,
+        },
+      });
+
+      if (!existingPayment) {
+        let parameter = {
+          "transaction_details": {
+            "order_id": element.id,
+            "gross_amount": finalPrice
+          }
+        };
+
+        const transaction = await snap.createTransaction(parameter);
+        const transactionToken = transaction.token;
+
+        const payment = await prismaClient.payments.create({
+          data: {
+            seatbooking_id: element.id,
+            amount: finalPrice,
+            status: "unpaid",
+            transaction_token: transactionToken
+          }
+        });
+
+        paymentResults.push(payment);
+      } else {
+        console.log(`Existing payment found for seat booking ID: ${element.id}`);
+      }
+    } catch (error) {
+      console.error(`Error processing seat booking ID ${element.id}: ${error}`);
     }
-  };
+  }
 
-  const transaction = await snap.createTransaction(parameter);
-  const transactionToken = transaction.token;
+  if (paymentResults.length === 0) {
+    console.log("No new payments were created.");
+  }
 
-  const payment = await prismaClient.payments.create({
-    data:{
-      seatbooking_id: seatBooking.id,
-      amount: finalPrice,
-      status: "unpaid",
-      transaction_token: transactionToken
+  return paymentResults;
+};
+
+const getPayments = async (req) => {
+  const user = req.user;
+
+  const payments = await prismaClient.payments.findMany({
+    where: {
+      user_id: user.user_id,
     }
-  })
+  });
 
-  return { payment, transactionToken };
-}
+  if (payments.length === 0) throw new ResponseError(StatusCodes.NOT_FOUND, "Payment not found")
+
+  return payments;
+};
 
 const notificationPayments = async (req) => {
 
@@ -163,65 +196,9 @@ const notificationPayments = async (req) => {
   return paymentsHistory
 }
 
-const deleteExpiredPayments = async() => {
-  const now = new Date();
-  let payments = await prismaClient.payments.findMany({
-    where: {
-      status: 'unpaid'
-    },
-    include:{
-      seatbooking: true
-    }
-  });
-
-  for (const payment of payments) {
-    expirationTime = new Date(payment.createdAt.getTime() + 30 * 60000).getTime();
-    if (expirationTime < now) {
-      await prismaClient.payments.delete({
-        where: { id: payment.id }
-      });
-      await prismaClient.seatBookings.delete({
-        where: { id: payment.seatbooking.id }
-      });
-    }
-    io.emit('paymentDeleted', { paymentId: payment.id });
-  }
-}
-
-const completeSeatWhenShowEnded = async() => {
-  const currentTime = new Date();
-
-  const showtimes = await prismaClient.showtimes.findMany({
-    where: {
-        show_end: {
-            lt: currentTime
-        }
-    },
-    include: {
-        seatbooking: true
-    }
-  });
-
-  showtimes.forEach(async (showtime) => {
-    await Promise.all(showtime.seatbooking.map(async (booking) => {
-        await prismaClient.seatBookings.update({
-            where: { id: booking.id, status: "active"},
-            data: { status: 'completed' }
-        });
-
-        await prismaClient.seats.update({
-            where: { id: booking.seat_id },
-            data: { isAvailable: true }
-        });
-    }));
-});
-
-}
-
 
 export {
   createPayments,
   notificationPayments,
-  deleteExpiredPayments,
-  completeSeatWhenShowEnded
-  };
+  getPayments
+};

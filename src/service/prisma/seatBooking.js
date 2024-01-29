@@ -8,7 +8,7 @@ import { logger } from '../../application/logging.js';
 
 const createSeatBooking = async (req) => {  
 
-  let status = req.body.status || "cancelled";
+  let status = req.body.status || "pending";
 
   let data = {}
   data.user_id = req.user.userId

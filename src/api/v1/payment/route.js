@@ -6,6 +6,7 @@ import { authenticateUser, authorizeRoles } from "../../../middleware/auth.js";
 const router = new express.Router();
 
 router.post("/api/v1/payment", authenticateUser, authorizeRoles('user'), PaymentController.create);
+router.get("/api/v1/payment", authenticateUser, authorizeRoles('user'), PaymentController.indexPayments);
 router.post("/api/v1/payment/notification", authenticateUser, authorizeRoles('user'), PaymentController.notification);
 
 export default router;

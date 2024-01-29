@@ -85,8 +85,6 @@ describe("POST /api/v1/payment/notification", () => {
 
     const response = await supertest(app).post("/api/v1/payment/notification").set('Authorization', `Bearer ${token}`).send(notification);
 
-    logger.info(response.body)
-
     expect(response.statusCode).toBe(StatusCodes.OK);
   })
 
